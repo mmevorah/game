@@ -19,6 +19,10 @@ namespace game
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        //Background
+        Texture2D background;
+        Rectangle mainframe;
+
         //Ball
         Texture2D ballSprite;
         Vector2 ballPosition = Vector2.Zero;
@@ -76,6 +80,9 @@ namespace game
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            background = Content.Load<Texture2D>("background");
+            mainframe = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
             ballSprite = Content.Load<Texture2D>("ball");
 
@@ -183,10 +190,12 @@ namespace game
 
             spriteBatch.Begin();
 
+            spriteBatch.Draw(background, mainframe, Color.White);
+
             string output = p2Score + " " + p1Score;
             Vector2 FontOrigin = font.MeasureString(output) / 2;
             spriteBatch.DrawString(font, output, fontPosition, Color.White,
-                0, FontOrigin, 4.0f, SpriteEffects.None, 0.5f);
+                0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
 
            
             spriteBatch.Draw(ballSprite, ballPosition, Color.White);
