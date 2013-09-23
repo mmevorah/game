@@ -24,9 +24,14 @@ namespace game
         Vector2 ballPosition = Vector2.Zero;
         Vector2 ballSpeed = new Vector2(150, 150);
 
-        //Paddle
-        Texture2D paddleSprite;
-        Vector2 paddlePosition;
+        //Player 1
+        Texture2D paddle1Sprite;
+        Vector2 paddle1Position;
+
+        //Player 2
+        Texture2D paddle2Sprite;
+        Vector2 paddle2Position;
+
 
 
 
@@ -47,9 +52,13 @@ namespace game
             // TODO: Add your initialization logic here
             base.Initialize();
 
-            paddlePosition = new Vector2(
-                graphics.GraphicsDevice.Viewport.Width / 2 - paddleSprite.Width / 2,
-                graphics.GraphicsDevice.Viewport.Height - paddleSprite.Height);
+            paddle1Position = new Vector2(
+                graphics.GraphicsDevice.Viewport.Width - paddle1Sprite.Width,
+                graphics.GraphicsDevice.Viewport.Height / 2 - paddle1Sprite.Height / 2);
+
+            paddle2Position = new Vector2(
+                0,
+                graphics.GraphicsDevice.Viewport.Height / 2 - paddle2Sprite.Height / 2);
         }
 
         /// <summary>
@@ -63,7 +72,8 @@ namespace game
 
             ballSprite = Content.Load<Texture2D>("ball");
 
-            paddleSprite = Content.Load<Texture2D>("paddle");
+            paddle1Sprite = Content.Load<Texture2D>("paddle");
+            paddle2Sprite = Content.Load<Texture2D>("paddle");
         }
 
         /// <summary>
@@ -88,26 +98,42 @@ namespace game
 
             //Controls
             KeyboardState keyState = Keyboard.GetState();
-            if (keyState.IsKeyDown(Keys.Right))
-                paddlePosition.X += 5;
-            else if (keyState.IsKeyDown(Keys.Left))
-                paddlePosition.X -= 5;
+
+            //Player 1
+            if (keyState.IsKeyDown(Keys.Up))
+                paddle1Position.Y -= 5;
+            else if (keyState.IsKeyDown(Keys.Down))
+                paddle1Position.Y += 5;
+
+            //Player 2
+            if (keyState.IsKeyDown(Keys.W))
+                paddle2Position.Y -= 5;
+            else if (keyState.IsKeyDown(Keys.S))
+                paddle2Position.Y += 5;
 
             //Move ball
             ballPosition += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            int maxX = GraphicsDevice.Viewport.Width - ballSprite.Width;
+            int maxX = GraphicsDevice.Viewport.Width;
             int maxY = GraphicsDevice.Viewport.Height - ballSprite.Height;
 
             //Check collision
-            if (ballPosition.X > maxX || ballPosition.X < 0)
-                ballSpeed.X *= -1;
-
-            if (ballPosition.Y < 0)
+            if (ballPosition.Y > maxY || ballPosition.Y < 0)
                 ballSpeed.Y *= -1;
-            else if (ballPosition.Y > maxY)
+
+            if (ballPosition.X < 0 && ballPosition.X < paddle2Position.X)
             {
+                //Add Scoring
                 ballPosition.Y = 0;
+                ballPosition.X = maxX / 2;
+                ballSpeed.X = 150;
+                ballSpeed.Y = 150;
+            }
+            else if (ballPosition.X > maxX && ballPosition.X > paddle1Position.X)
+            {
+                //Add Scoring
+                ballPosition.Y = 0;
+                ballPosition.X = maxX / 2;
                 ballSpeed.X = 150;
                 ballSpeed.Y = 150;
             }
@@ -117,20 +143,19 @@ namespace game
             Rectangle ballRect =
                 new Rectangle((int)ballPosition.X, (int)ballPosition.Y,
                     ballSprite.Width, ballSprite.Height);
-            Rectangle handRect =
-                new Rectangle((int)paddlePosition.X, (int)paddlePosition.Y,
-                    paddleSprite.Width, paddleSprite.Height);
+           
+            Rectangle paddle1Rect =
+                new Rectangle((int)paddle1Position.X, (int)paddle1Position.Y,
+                    paddle1Sprite.Width, paddle1Sprite.Height);
+            Rectangle paddle2Rect =
+                new Rectangle((int)paddle2Position.X, (int)paddle2Position.Y,
+                    paddle2Sprite.Width, paddle2Sprite.Height);
 
-            if (ballRect.Intersects(handRect) && ballSpeed.Y > 0)
+
+
+            if (ballRect.Intersects(paddle1Rect) || ballRect.Intersects(paddle2Rect))
             {
-                //change ball speed
-                ballSpeed.Y += 50;
-                if (ballSpeed.X < 0)
-                    ballSpeed.X -= 50;
-                else
-                    ballSpeed.X += 50;
-
-                ballSpeed.Y *= -1;
+                ballSpeed.X *= -1;
             }
 
            
@@ -148,7 +173,8 @@ namespace game
 
             spriteBatch.Begin();
             spriteBatch.Draw(ballSprite, ballPosition, Color.White);
-            spriteBatch.Draw(paddleSprite, paddlePosition, Color.White);
+            spriteBatch.Draw(paddle1Sprite, paddle1Position, Color.White);
+            spriteBatch.Draw(paddle2Sprite, paddle2Position, Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
