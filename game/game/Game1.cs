@@ -32,8 +32,11 @@ namespace game
         Texture2D paddle2Sprite;
         Vector2 paddle2Position;
 
-
-
+        //Score
+        SpriteFont font;
+        Vector2 fontPosition;
+        int p1Score = 0;
+        int p2Score = 0;
 
         public Game1()
         {
@@ -59,6 +62,10 @@ namespace game
             paddle2Position = new Vector2(
                 0,
                 graphics.GraphicsDevice.Viewport.Height / 2 - paddle2Sprite.Height / 2);
+
+            fontPosition = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2,
+                graphics.GraphicsDevice.Viewport.Height / 2);
+
         }
 
         /// <summary>
@@ -74,6 +81,9 @@ namespace game
 
             paddle1Sprite = Content.Load<Texture2D>("paddle");
             paddle2Sprite = Content.Load<Texture2D>("paddle");
+
+            font = Content.Load<SpriteFont>("SpriteFont1");
+
         }
 
         /// <summary>
@@ -123,7 +133,7 @@ namespace game
 
             if (ballPosition.X < 0 && ballPosition.X < paddle2Position.X)
             {
-                //Add Scoring
+                p1Score++;
                 ballPosition.Y = 0;
                 ballPosition.X = maxX / 2;
                 ballSpeed.X = 150;
@@ -131,7 +141,7 @@ namespace game
             }
             else if (ballPosition.X > maxX && ballPosition.X > paddle1Position.X)
             {
-                //Add Scoring
+                p2Score++;
                 ballPosition.Y = 0;
                 ballPosition.X = maxX / 2;
                 ballSpeed.X = 150;
@@ -172,9 +182,19 @@ namespace game
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
+
+            string output = p2Score + " " + p1Score;
+            Vector2 FontOrigin = font.MeasureString(output) / 2;
+            spriteBatch.DrawString(font, output, fontPosition, Color.White,
+                0, FontOrigin, 4.0f, SpriteEffects.None, 0.5f);
+
+           
             spriteBatch.Draw(ballSprite, ballPosition, Color.White);
             spriteBatch.Draw(paddle1Sprite, paddle1Position, Color.White);
             spriteBatch.Draw(paddle2Sprite, paddle2Position, Color.White);
+
+
+
             spriteBatch.End();
 
             base.Draw(gameTime);
